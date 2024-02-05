@@ -86,7 +86,6 @@ public class StockAnalyst implements IStockAnalyst {
             tables.add(matcher.group());
             tableMaps.add(getTopCompaniesByChangeRate(matcher.group()));
         }
-
         return tableMaps;
     }
 }
