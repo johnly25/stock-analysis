@@ -23,11 +23,13 @@ public class Client {
             input = getUserInput();
 
             List<String> keys = convertSetToList(subcategories.keySet());
-            List<TreeMap<Double, List<String>>> companiesByPercent = stockAnalyst.getTopCompanies(stockAnalyst.getUrlText(subcategories.get(keys.get(input))));
-            System.out.println("There are " + companiesByPercent.get(0).size() + " stocks in this category, Please type number of stocks you'd like to view: ");
+            System.out.println("Please type number of top companies you'd like to view: ");
+            String urlText = stockAnalyst.getUrlText(subcategories.get(keys.get(input)));
             input = getUserInput();
 
-            printTables(companiesByPercent, input);
+            printTables(stockAnalyst.getTopCompanies(urlText,input));
+
+
             System.out.println("0 to continue or 1 exit");
             input = getUserInput();
         }
@@ -63,34 +65,24 @@ public class Client {
         return input;
     }
 
-    public static void printCompanies(TreeMap<Double, List<String>> companiesByPercent, int count) {
-        List<Double> keys = new ArrayList<>();
-        Set<Double> keySet = companiesByPercent.keySet();
-        Iterator<Double> itr = keySet.iterator();
-        int i = 0;
-        while (itr.hasNext() && i < count) {
-            keys.add(itr.next());
-            i++;
-        }
-
-        for (Double key : keys) {
-            String companies = String.join(", ", companiesByPercent.get(key));
+    public static void printCompanies(TreeMap<Double, List<String>> companiesByPercent) {
+        for(Map.Entry<Double, List<String>> entry : companiesByPercent.entrySet()) {
+            Double key = entry.getKey();
+            String companies = String.join(",", entry.getValue());
             System.out.printf("%-50s %.2f%% %n", companies, key);
             System.out.println("--------------------------------");
         }
+
     }
 
-    public static void printTables(List<TreeMap<Double, List<String>>> tables, int count) {
-        TreeMap<Double,List<String>> companiesByPercent = tables.get(0);
-        printCompanies(companiesByPercent, count);
-
+    public static void printTables( List<TreeMap<Double, List<String>>> tables) {
+        printCompanies(tables.get(0));
         if(tables.size() > 1) {
             System.out.println();
             System.out.println();
             System.out.println();
             System.out.println("Related table was found, printing table...");
-            printCompanies(tables.get(1), count);
-
+            printCompanies(tables.get(1));
         }
     }
     public static List<String> convertSetToList(Set<String> set) {

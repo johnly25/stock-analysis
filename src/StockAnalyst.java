@@ -57,7 +57,18 @@ public class StockAnalyst implements IStockAnalyst {
     }
 
     @Override
-    public TreeMap<Double, List<String>> getTopCompaniesByChangeRate(String urlText) throws Exception {
+    public TreeMap<Double, List<String>> getTopCompaniesByChangeRate(final String urlText, final int topCount) throws Exception {
+        TreeMap<Double, List<String>> companyByPercentChange = new TreeMap<Double, List<String>>(Collections.reverseOrder());
+        TreeMap<Double, List<String>> allCompanyByPercentChange = getAllCompaniesByChangeRate(urlText);
+        List<Double> keys = convertSetToList(allCompanyByPercentChange.keySet());
+        int i = 0;
+        while(i < keys.size() && i < topCount) {
+            companyByPercentChange.put(keys.get(i), allCompanyByPercentChange.get(keys.get(i)));
+            i++;
+        }
+        return companyByPercentChange;
+    }
+    public TreeMap<Double, List<String>> getAllCompaniesByChangeRate(final String urlText) {
         TreeMap<Double, List<String>> companyByPercentChange = new TreeMap<Double, List<String>>(Collections.reverseOrder());
         Pattern pattern = Pattern.compile("<tr.*?slw.*?>(.*?)<.*?<td\\sclass=\\\"\\w\\w\\s.*?>(-?\\d+\\.\\d+)%");
         Matcher matcher = pattern.matcher(urlText);
@@ -76,16 +87,23 @@ public class StockAnalyst implements IStockAnalyst {
         }
         return companyByPercentChange;
     }
-
-    public List<TreeMap<Double, List<String>>> getTopCompanies(String urlText) throws Exception {
+    public List<TreeMap<Double, List<String>>> getTopCompanies(String urlText, int topCount) throws Exception {
         List<TreeMap<Double, List<String>>> tableMaps = new ArrayList<>();
         Pattern pattern = Pattern.compile("<table.*?<\\/table>");
         Matcher matcher = pattern.matcher(urlText);
         List<String> tables = new ArrayList<String>();
         while (matcher.find()) {
             tables.add(matcher.group());
-            tableMaps.add(getTopCompaniesByChangeRate(matcher.group()));
+            tableMaps.add(getTopCompaniesByChangeRate(matcher.group(), topCount));
         }
         return tableMaps;
+    }
+
+    public static List<Double> convertSetToList(Set<Double> set) {
+        List<Double> list = new ArrayList<>();
+        for (Double key : set) {
+            list.add(key);
+        }
+        return list;
     }
 }
